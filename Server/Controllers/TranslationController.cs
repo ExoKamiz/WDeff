@@ -28,7 +28,7 @@ namespace WDeff.Server.Controllers
         public async Task<string> PostText(reqf tr)
         {
             Translation translation = new Translation();
-            var authKey = "6bc6855b-580d-5db2-5bce-4ba6b7b40267:fx"; // Replace with your key
+            var authKey = "..."; // Replace with your key
             var translator = new Translator(authKey);
             var translatedText = await translator.TranslateTextAsync(
               tr.text,
