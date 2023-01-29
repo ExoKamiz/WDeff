@@ -3,6 +3,7 @@ using DeepL;
 using DeepL.Model;
 using WDeff.Server.Data;
 using NPOI.SS.Formula.Functions;
+using System.Net;
 
 namespace WDeff.Server.Controllers
 {
@@ -11,10 +12,12 @@ namespace WDeff.Server.Controllers
     public class TranslationController : Controller
     { 
         private readonly DataContext _db;
+        private readonly IWebHostEnvironment _env;
 
-        public TranslationController(DataContext db)
+        public TranslationController(DataContext db, IWebHostEnvironment env)
         {
             _db = db;
+            _env = env;
         }
         
         public class reqf
@@ -24,6 +27,7 @@ namespace WDeff.Server.Controllers
             public string lengFrom { get; set; }
             public string lengTo { get; set; }
         }
+
         [HttpPost]
         public async Task<string> PostText(reqf tr)
         {
@@ -40,6 +44,32 @@ namespace WDeff.Server.Controllers
             await _db.SaveChangesAsync();
 
             return translation.OutputText;
+        }
+
+        [HttpPost("fileName")]
+        public async Task<ActionResult<List<Translation>>> UploadFile(List<IFormFile> files)
+        {
+            List<Translation> uploadResults = new List<Translation>();
+
+            foreach (var file in files)
+            {
+                var uploadResult = new Translation();
+                string trustedFileNameForFileStorage;
+                var untrustedFileName = file.FileName;
+                uploadResult.FileName = untrustedFileName;
+                var trustedFileNameForFileDisplay = WebUtility.HtmlEncode(untrustedFileName);
+
+                trustedFileNameForFileStorage = Path.GetRandomFileName();
+                var path = Path.Combine(_env.ContentRootPath, "Assets", trustedFileNameForFileStorage);
+
+                await using FileStream fs = new(path, FileMode.Create); 
+                await file.CopyToAsync(fs);
+
+                uploadResult.StoredFileName = trustedFileNameForFileStorage;
+                uploadResults.Add(uploadResult);
+            }
+
+            return Ok(uploadResults);
         }
     }
 }

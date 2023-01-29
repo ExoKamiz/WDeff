@@ -10,5 +10,8 @@ namespace WDeff.Shared
     {
         public int Id {get; set;}
         public string OutputText {get; set;} = string.Empty;
+
+        public string? FileName { get; set;}
+        public string? StoredFileName { get; set;}
     }
 }
