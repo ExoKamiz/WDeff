@@ -8,15 +8,29 @@
 
             <div>
                 <div class="form-group row">
-                    <select id="lengFrom" @bind="lengFrom">
-                        <option value="en">English</option>
-                        <option value="ua">uauu</option>
-                        <option value="pl">pl</option>
+                    <select id="lengFrom" @bind="lengFrom" >
+                        
+                        <option selected="selected" value="uk">Ukrainian</option>
+                        @*<option value="en">English</option>*@
+                        <option value="pl">Polish</option>
+                        <option value="ja">Japanese</option>
+                        <option value="es">Spanish</option>
+                        <option value="de">German</option>
+                        <option value="tr">Turkish</option>
+                        <option value="zh">Chinese</option>
+                        <option value="el">Greek</option>
                     </select>
-                    <select id="lengTo" @bind="lengTo">
-                        <option value="en">English</option>
-                        <option value="ua">uauu</option>
-                        <option value="pl">pl</option>
+                    <select id="lengTo" @bind="lengTo" >
+                        
+                        <option selected="selected" value="uk">Ukrainian</option>
+                        @*<option value="en">English</option>*@
+                        <option value="pl">Polish</option>
+                        <option value="ja">Japanese</option>
+                        <option value="es">Spanish</option>
+                        <option value="de">German</option>
+                        <option value="tr">Turkish</option>
+                        <option value="zh">Chinese</option>
+                        <option value="el">Greek</option>
                     </select>
                     <div class="col-4">
                         <label for="InputText">Language 1:</label>
@@ -43,10 +57,10 @@
 </form>
 
 @code {
-    public string output { get; set; }
-    public string text { get; set; }
-    public string lengFrom { get; set; }
-    public string lengTo { get; set; }
+    public string? output { get; set; }
+    public string text { get; set; } = "";
+    public string lengFrom { get; set; } = "en";
+    public string lengTo { get; set; } = "pl";
 
     public async Task PostText()
     {
@@ -54,6 +68,7 @@
             text = text,
             lengFrom = lengFrom,
             lengTo = lengTo
+           
         };
 
         var result = await _http.PostAsJsonAsync("api/Translation", r);

@@ -9,6 +9,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WDeff.Client", "Client\WDef
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WDeff.Shared", "Shared\WDeff.Shared.csproj", "{2B2D26CA-9B21-48A1-AB99-F8BA3DF6E897}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "AssetsXml", "AssetsXml", "{21F37C27-DB15-4535-A31D-DFB57137223C}"
+	ProjectSection(SolutionItems) = preProject
+		Server\XMLRead.cs = Server\XMLRead.cs
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

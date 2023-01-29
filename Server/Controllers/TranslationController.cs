@@ -9,15 +9,17 @@ namespace WDeff.Server.Controllers
     [Route("api/[controller]")]
     [ApiController]
     public class TranslationController : Controller
-    {
+    { 
         private readonly DataContext _db;
 
         public TranslationController(DataContext db)
         {
             _db = db;
         }
+        
         public class reqf
         {
+
             public string text { get; set; }
             public string lengFrom { get; set; }
             public string lengTo { get; set; }
