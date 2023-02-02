@@ -9,9 +9,10 @@ namespace WDeff.Shared
     public class Translation
     {
         public int Id {get; set;}
+        public string InputText {get; set;} = string.Empty;
         public string OutputText {get; set;} = string.Empty;
-
-        public string? FileName { get; set;}
-        public string? StoredFileName { get; set;}
+        public string LanguageFrom {get; set;} = string.Empty;
+        public string LanguageTo {get; set;} = string.Empty;
+        
     }
 }

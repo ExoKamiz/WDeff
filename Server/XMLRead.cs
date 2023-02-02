@@ -10,17 +10,19 @@ namespace WDeff.Server
             XmlDocument doc = new XmlDocument();
             doc.Load(filepath);
 
-            string langFrom ;
-            string langTo;
-            string text;
+            string langFrom = string.Empty;
+            string langTo = string.Empty;
+            string inputText = string.Empty;
+            string outputText = string.Empty;
             
-            var translate = doc.GetElementsByTagName("Translate");
+            var translate = doc.GetElementsByTagName("Translation");
 
             foreach (XmlNode w in translate)
             {
                 langFrom = w.Attributes.GetNamedItem("fromLanguage").Value;
                 langTo = w.Attributes.GetNamedItem("toLanguage").Value;
-                text = w.FirstChild.Attributes.GetNamedItem("text").Value;
+                inputText = w.FirstChild.Attributes.GetNamedItem("InputText").Value;
+                outputText = w.FirstChild.Attributes.GetNamedItem("OutputText").Value;
                 
             }
         }

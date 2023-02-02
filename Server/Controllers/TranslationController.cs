@@ -4,6 +4,11 @@ using DeepL.Model;
 using WDeff.Server.Data;
 using NPOI.SS.Formula.Functions;
 using System.Net;
+using System.Xml;
+using WDeff.Shared;
+using System.Reflection.Metadata.Ecma335;
+using System.Text.Json;
+using Microsoft.EntityFrameworkCore;
 
 namespace WDeff.Server.Controllers
 {
@@ -11,6 +16,7 @@ namespace WDeff.Server.Controllers
     [ApiController]
     public class TranslationController : Controller
     { 
+       
         private readonly DataContext _db;
         private readonly IWebHostEnvironment _env;
 
@@ -22,23 +28,27 @@ namespace WDeff.Server.Controllers
         
         public class reqf
         {
-
-            public string text { get; set; }
-            public string lengFrom { get; set; }
-            public string lengTo { get; set; }
+            public string? outText { get; set; }
+            public string? text { get; set; }
+            public string? lengFrom { get; set; }
+            public string? lengTo { get; set; }
         }
 
-        [HttpPost]
+        [HttpPost("Translate")]
         public async Task<string> PostText(reqf tr)
         {
             Translation translation = new Translation();
             var authKey = "..."; // Replace with your key
             var translator = new Translator(authKey);
             var translatedText = await translator.TranslateTextAsync(
-              tr.text,
-              tr.lengFrom,
-              tr.lengTo);
+              tr.text ?? "Hello",
+              tr.lengFrom ?? "en",
+              tr.lengTo ?? "pl");
             translation.OutputText = translatedText.Text;
+            translation.InputText = tr.text;
+            translation.LanguageFrom = tr.lengFrom;
+            translation.LanguageTo = tr.lengTo;
+
 
             _db.Translations.Add(translation);
             await _db.SaveChangesAsync();
@@ -46,30 +56,68 @@ namespace WDeff.Server.Controllers
             return translation.OutputText;
         }
 
-        [HttpPost("fileName")]
-        public async Task<ActionResult<List<Translation>>> UploadFile(List<IFormFile> files)
+        [HttpPost("importXML")]
+        public async Task<ActionResult> UploadFile(IFormFile file)
         {
-            List<Translation> uploadResults = new List<Translation>();
+            XmlDocument doc = new XmlDocument();
 
-            foreach (var file in files)
+
+            using (var ms = file.OpenReadStream())
             {
-                var uploadResult = new Translation();
-                string trustedFileNameForFileStorage;
-                var untrustedFileName = file.FileName;
-                uploadResult.FileName = untrustedFileName;
-                var trustedFileNameForFileDisplay = WebUtility.HtmlEncode(untrustedFileName);
+                doc.Load(ms);
 
-                trustedFileNameForFileStorage = Path.GetRandomFileName();
-                var path = Path.Combine(_env.ContentRootPath, "Assets", trustedFileNameForFileStorage);
+                var translate = doc.GetElementsByTagName("Translation");
 
-                await using FileStream fs = new(path, FileMode.Create); 
-                await file.CopyToAsync(fs);
+                foreach (XmlNode w in translate)
+                {
+                    string? langFrom = w.Attributes.GetNamedItem("fromLanguage")?.Value;
+                    string? langTo = w.Attributes.GetNamedItem("toLanguage")?.Value;
+                    string? inputText = w.FirstChild.Attributes.GetNamedItem("InputText")?.Value;
+                    string? outputText = w.FirstChild.Attributes.GetNamedItem("OutputText")?.Value;
 
-                uploadResult.StoredFileName = trustedFileNameForFileStorage;
-                uploadResults.Add(uploadResult);
+                    _db.Translations.Add(new Translation
+                    {
+                        LanguageFrom = langFrom ??"",
+                        LanguageTo = langTo ??"",
+                        InputText = inputText ?? "",
+                        OutputText = outputText ?? ""
+                    });
+                }
+                await _db.SaveChangesAsync();
             }
 
-            return Ok(uploadResults);
+            return Ok();
         }
+
+        [HttpGet("exportJSON")]
+        public async Task<ActionResult> ExportFile()
+        {
+            List<reqf> dataList = new List<reqf>();
+
+          
+            foreach (var item in _db.Translations)
+            {
+                dataList.Add(new reqf
+                {
+                    lengFrom = item.LanguageFrom,
+                    lengTo = item.LanguageTo,
+                    text = item.InputText,
+                    outText = item.OutputText
+                });
+            }
+            dataList.ToArray();
+            var tempjson = JsonSerializer.Serialize(dataList);
+            string jsonPath = Path.Combine("Assets", "data.json");
+            System.IO.File.WriteAllText(jsonPath, tempjson);
+
+            return Ok();
+        }
+
+        [HttpGet("getdb")]
+        public async Task<List<Translation>> GetDb()
+        {
+            return await _db.Translations.OrderByDescending(x=>x.Id).ToListAsync();
+        }
+       
     }
 }
