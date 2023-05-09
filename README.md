@@ -27,7 +27,7 @@ MS SQL Server: The database management system used for efficient data storage, r
 ### Getting Started
 To get started with the WDeff, follow these steps:
 
-Clone the repository: git clone https://github.com/your-username/multi-language-web-translator.git
+Clone the repository: git clone https://github.com/ExoKamiz/WDeff.git
 Install the necessary dependencies by running dotnet restore.
 Configure the connection string in the appsettings.json file to connect to your MS SQL Server instance.
 Obtain an API key from the Deepl Translator API and update the configuration accordingly.
